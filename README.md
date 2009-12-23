@@ -10,14 +10,26 @@
     ws = require("./ws/lib/ws");
   
   ws.createServer(function (websocket) {
-    websocket.addListener("connect", function (resource) { // emitted after handshake
+
+    websocket.addListener("connect", function (resource) { 
+      // emitted after handshake
+
       sys.debug("connect: " + resource);
       setTimeout(websocket.close, 10 * 1000); // server closes connection after 10s, will also get "close" event
-    }).addListener("receive", function (data) { // handle incoming data
+
+    }).addListener("receive", function (data) { 
+      // handle incoming data
+
       sys.debug(data);
-      websocket.send("Thanks!"); // send data to client
-    }).addListener("close", function () { // emitted when server or client closes connection
+
+      // send data to client
+      websocket.send("Thanks!"); 
+
+    }).addListener("close", function () { 
+
+      // emitted when server or client closes connection
       sys.debug("close");
+
     });
   }).listen(8080);
 </code></pre>
