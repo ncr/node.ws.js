@@ -104,6 +104,8 @@ exports.createServer = function (websocketListener) {
         emitter.emit("close");
       }
     });
+
+    emitter.remoteAddress = socket.remoteAddress;
     
     emitter.send = function (data) {
       try {
