@@ -1,5 +1,7 @@
-// Based on:
-// http://github.com/Guille/node.websocket.js
+// Github: http://github.com/ncr/node.ws.js
+// Author: Jacek Becela
+// License: MIT
+// Based on: http://github.com/Guille/node.websocket.js
 
 function nano(template, data) {
   return template.replace(/\{([\w\.]*)}/g, function (str, key) {
