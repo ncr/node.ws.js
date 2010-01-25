@@ -1,5 +1,4 @@
 // Based on:
-// http://github.com/alexanderte/websocket-server-node.js
 // http://github.com/Guille/node.websocket.js
 
 function nano(template, data) {
@@ -32,26 +31,31 @@ var sys = require("sys"),
 
 exports.createServer = function (websocketListener) {
   return tcp.createServer(function (socket) {
-    var buffer = '';
     socket.setTimeout(0);
     socket.setNoDelay(true);
     socket.setEncoding("utf8");
 
     var emitter = new process.EventEmitter(),
-      handshaked = false;
-
+      handshaked = false,
+      buffer = "";
+      
     function handle(data) {
       buffer += data;
-      if (buffer.length && buffer[0] == "\u0000") {
-        var end = buffer.indexOf("\ufffd");
-        if (end != -1) {
-          var packet = buffer.substring(1, end);
-          emitter.emit("receive", packet);
-          buffer = end != buffer.length ? buffer.substr(end + 1) : "";
-        }
-      } else {
+      
+      var chunks = buffer.split("\ufffd"),
+        count = chunks.length - 1; // last is "" or a partial packet
+        
+      for(var i = 0; i < count; i++) {
+        var chunk = chunks[i];
+        if(chunk[0] == "\u0000") {
+          emitter.emit("receive", chunk.slice(1));
+        } else {
           socket.close();
+          return;
+        }
       }
+      
+      buffer = chunks[count];
     }
 
     function handshake(data) {
@@ -73,6 +77,7 @@ exports.createServer = function (websocketListener) {
           }
         } else {
           socket.close();
+          return;
         }
       }
 

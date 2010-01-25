@@ -7,7 +7,7 @@
 
 <pre><code>
   var sys = require("sys"),
-    ws = require("./ws/lib/ws");
+    ws = require("./ws");
   
   ws.createServer(function (websocket) {
 
@@ -23,6 +23,7 @@
       sys.debug(data);
 
       // send data to client
+      // can raise exceptions (most commonly "Socket is not open for writing")
       websocket.send("Thanks!"); 
 
     }).addListener("close", function () { 
@@ -33,11 +34,6 @@
     });
   }).listen(8080);
 </code></pre>
-
-## TODO
-
-* Properly inherit from tcp.Server
-* Add configurable policy and allowed origins
 
 ### Author
 
