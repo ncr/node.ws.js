@@ -23,7 +23,6 @@
       sys.debug(data);
 
       // send data to client
-      // can raise exceptions (most commonly "Socket is not open for writing")
       websocket.send("Thanks!"); 
 
     }).addListener("close", function () { 
