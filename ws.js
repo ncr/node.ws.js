@@ -106,7 +106,13 @@ exports.createServer = function (websocketListener) {
     });
     
     emitter.send = function (data) {
-      socket.send('\u0000' + data + '\uffff');
+      try {
+        socket.send('\u0000' + data + '\uffff');
+      } catch(e) { 
+        // Socket not open for writing, 
+        // should get "close" event just before.
+        socket.close();
+      }
     }
     
     emitter.close = function () {
