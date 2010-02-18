@@ -50,7 +50,7 @@ exports.createServer = function (websocketListener) {
       for(var i = 0; i < count; i++) {
         var chunk = chunks[i];
         if(chunk[0] == "\u0000") {
-          emitter.emit("receive", chunk.slice(1));
+          emitter.emit("data", chunk.slice(1));
         } else {
           socket.close();
           return;
@@ -109,7 +109,7 @@ exports.createServer = function (websocketListener) {
 
     emitter.remoteAddress = socket.remoteAddress;
     
-    emitter.send = function (data) {
+    emitter.write = function (data) {
       try {
         socket.write('\u0000' + data + '\uffff');
       } catch(e) { 
@@ -123,6 +123,6 @@ exports.createServer = function (websocketListener) {
       socket.close();
     }
     
-    websocketListener(emitter); // emits: "connect", "receive", "close", provides: send(data), close()
+    websocketListener(emitter); // emits: "connect", "data", "close", provides: write(data), close()
   });
 }

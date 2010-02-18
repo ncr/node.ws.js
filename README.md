@@ -17,13 +17,13 @@
       sys.debug("connect: " + resource);
       setTimeout(websocket.close, 10 * 1000); // server closes connection after 10s, will also get "close" event
 
-    }).addListener("receive", function (data) { 
+    }).addListener("data", function (data) { 
       // handle incoming data
 
       sys.debug(data);
 
       // send data to client
-      websocket.send("Thanks!"); 
+      websocket.write("Thanks!"); 
 
     }).addListener("close", function () { 
 
