@@ -64,7 +64,7 @@ exports.createServer = function (websocketListener) {
       var headers = data.split("\r\n");
 
       if(/<policy-file-request.*>/.exec(headers[0])) {
-        socket.send(policy_file);
+        socket.write(policy_file);
         socket.close();
         return;
       }
@@ -83,7 +83,7 @@ exports.createServer = function (websocketListener) {
         }
       }
 
-      socket.send(nano(handshakeTemplate, {
+      socket.write(nano(handshakeTemplate, {
         resource: matches[0],
         host:     matches[1],
         origin:   matches[2],
@@ -93,13 +93,13 @@ exports.createServer = function (websocketListener) {
       emitter.emit("connect", matches[0]);
     }
 
-    socket.addListener("receive", function (data) {
+    socket.addListener("data", function (data) {
       if(handshaked) {
         handle(data);
       } else {
         handshake(data);
       }
-    }).addListener("eof", function () {
+    }).addListener("end", function () {
       socket.close();
     }).addListener("close", function () {
       if (handshaked) { // don't emit close from policy-requests
@@ -111,7 +111,7 @@ exports.createServer = function (websocketListener) {
     
     emitter.send = function (data) {
       try {
-        socket.send('\u0000' + data + '\uffff');
+        socket.write('\u0000' + data + '\uffff');
       } catch(e) { 
         // Socket not open for writing, 
         // should get "close" event just before.
