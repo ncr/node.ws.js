@@ -1,4 +1,5 @@
 // Github: http://github.com/ncr/node.ws.js
+// Compatible with node v0.1.91
 // Author: Jacek Becela
 // License: MIT
 // Based on: http://github.com/Guille/node.websocket.js
@@ -12,7 +13,7 @@ function nano(template, data) {
 }
 
 var sys = require("sys"),
-  tcp = require("tcp"),
+  net = require("net"),
   headerExpressions = [
     /^GET (\/[^\s]*) HTTP\/1\.1$/,
     /^Upgrade: WebSocket$/,
@@ -32,7 +33,7 @@ var sys = require("sys"),
   policy_file = '<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>';
 
 exports.createServer = function (websocketListener) {
-  return tcp.createServer(function (socket) {
+  return net.createServer(function (socket) {
     socket.setTimeout(0);
     socket.setNoDelay(true);
     socket.setEncoding("utf8");
@@ -52,7 +53,7 @@ exports.createServer = function (websocketListener) {
         if(chunk[0] == "\u0000") {
           emitter.emit("data", chunk.slice(1));
         } else {
-          socket.close();
+          socket.end();
           return;
         }
       }
@@ -65,7 +66,7 @@ exports.createServer = function (websocketListener) {
 
       if(/<policy-file-request.*>/.exec(headers[0])) {
         socket.write(policy_file);
-        socket.close();
+        socket.end();
         return;
       }
 
@@ -78,7 +79,7 @@ exports.createServer = function (websocketListener) {
             matches.push(match[1]);
           }
         } else {
-          socket.close();
+          socket.end();
           return;
         }
       }
@@ -100,7 +101,7 @@ exports.createServer = function (websocketListener) {
         handshake(data);
       }
     }).addListener("end", function () {
-      socket.close();
+      socket.end();
     }).addListener("close", function () {
       if (handshaked) { // don't emit close from policy-requests
         emitter.emit("close");
@@ -111,18 +112,18 @@ exports.createServer = function (websocketListener) {
     
     emitter.write = function (data) {
       try {
-        socket.write('\u0000' + data + '\uffff');
+        socket.write('\u0000' + data + '\uffff', "utf8");
       } catch(e) { 
         // Socket not open for writing, 
         // should get "close" event just before.
-        socket.close();
+        socket.end();
       }
     }
     
-    emitter.close = function () {
-      socket.close();
+    emitter.end = function () {
+      socket.end();
     }
     
-    websocketListener(emitter); // emits: "connect", "data", "close", provides: write(data), close()
+    websocketListener(emitter); // emits: "connect", "data", "close", provides: write(data), end()
   });
 }
