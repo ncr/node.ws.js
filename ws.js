@@ -112,7 +112,9 @@ exports.createServer = function (websocketListener) {
     
     emitter.write = function (data) {
       try {
-        socket.write('\u0000' + data + '\uffff', "utf8");
+        socket.write('\u0000', 'binary');
+        socket.write(data, 'utf8');
+        socket.write('\uffff', 'binary');
       } catch(e) { 
         // Socket not open for writing, 
         // should get "close" event just before.
