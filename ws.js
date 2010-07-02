@@ -106,6 +106,12 @@ exports.createServer = function (websocketListener) {
       if (handshaked) { // don't emit close from policy-requests
         emitter.emit("close");
       }
+    }).addListener("error", function (exception) {
+      if (emitter.listeners("error").length > 0) {
+        emitter.emit("error", exception);
+      } else {
+        throw exception;
+      }
     });
 
     emitter.remoteAddress = socket.remoteAddress;
