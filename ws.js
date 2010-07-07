@@ -1,6 +1,10 @@
 // Github: http://github.com/ncr/node.ws.js
 // Compatible with node v0.1.91
 // Author: Jacek Becela
+// Contributors:
+//   Michael Stillwell  http://github.com/ithinkihaveacat
+//   Nick Chapman       http://github.com/nchapman
+//   Dmitriy Shalashov  http://github.com/skaurus
 // License: MIT
 // Based on: http://github.com/Guille/node.websocket.js
 
