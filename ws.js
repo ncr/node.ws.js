@@ -60,7 +60,7 @@ var sys  = require("sys"),
 
 exports.createServer = function (websocketListener, options) {
   if (!options) options = {};
-  if (!options.flashPolicy) options.flashPolicy = policy_file;
+  if (!options.flashPolicy) options.flashPolicy = flashPolicy;
 
   return net.createServer(function (socket) {
     socket.setTimeout(0);
