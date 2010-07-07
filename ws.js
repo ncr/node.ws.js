@@ -52,7 +52,10 @@ var sys  = require("sys"),
   policy_file = '<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>';
 
 
-exports.createServer = function (websocketListener) {
+exports.createServer = function (websocketListener, options) {
+  if (!options) options = {};
+  if (!options.flashpolicy) options.flashpolicy = policy_file;
+
   return net.createServer(function (socket) {
     socket.setTimeout(0);
     socket.setNoDelay(true);
@@ -85,7 +88,7 @@ exports.createServer = function (websocketListener) {
       var _headers = data.split("\r\n");
 
       if ( /<policy-file-request.*>/.exec(_headers[0]) ) {
-        socket.write(policy_file);
+        socket.write( options.flashpolicy );
         socket.end();
         return;
       }
