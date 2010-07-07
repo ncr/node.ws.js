@@ -5,6 +5,8 @@
 //   Michael Stillwell  http://github.com/ithinkihaveacat
 //   Nick Chapman       http://github.com/nchapman
 //   Dmitriy Shalashov  http://github.com/skaurus
+//   Johan Dahlberg
+//   Andreas Kompanez
 // License: MIT
 // Based on: http://github.com/Guille/node.websocket.js
 
