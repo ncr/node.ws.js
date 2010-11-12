@@ -7,13 +7,14 @@
 //   Dmitriy Shalashov  http://github.com/skaurus
 //   Johan Dahlberg
 //   Andreas Kompanez
+//   Samuel Cyprian		http://github.com/samcyp
 // License: MIT
 // Based on: http://github.com/Guille/node.websocket.js
 
 function nano(template, data) {
   return template.replace(/\{([\w\.]*)}/g, function (str, key) {
     var keys = key.split("."), value = data[keys.shift()];
-    keys.forEach(function (key) { value = value[key] });
+    keys.forEach(function (key) { value = value[key];});
     return value;
   });
 }
@@ -35,14 +36,14 @@ var sys  = require("sys"),
     'upgrade': /^WebSocket$/,
     'connection': /^Upgrade$/,
     'host': /^(.+)$/,
-    'origin': /^(.+)$/,
+    'origin': /^(.+)$/
   },
   handshakeTemplate75 = [
     'HTTP/1.1 101 Web Socket Protocol Handshake', 
     'Upgrade: WebSocket', 
     'Connection: Upgrade',
     'WebSocket-Origin: {origin}',
-    'WebSocket-Location: ws://{host}{resource}',
+    'WebSocket-Location: {protocol}://{host}{resource}',
     '',
     ''
   ].join("\r\n"),
@@ -51,18 +52,33 @@ var sys  = require("sys"),
     'Upgrade: WebSocket',
     'Connection: Upgrade',
     'Sec-WebSocket-Origin: {origin}',
-    'Sec-WebSocket-Location: ws://{host}{resource}',
+    'Sec-WebSocket-Location: {protocol}://{host}{resource}',
     '',
     '{data}'
   ].join("\r\n"),
   flashPolicy = '<cross-domain-policy><allow-access-from domain="*" to-ports="*" /></cross-domain-policy>';
 
 
+
+exports.createSecureServer = function (websocketListener, credentials, options) {
+	if (!options) options = {};
+	options.secure = credentials;
+	return this.createServer(websocketListener, options);
+};
+
 exports.createServer = function (websocketListener, options) {
   if (!options) options = {};
   if (!options.flashPolicy) options.flashPolicy = flashPolicy;
+  // The value should be a crypto credentials
+  if (!options.secure) options.secure = null;
 
   return net.createServer(function (socket) {
+	//Secure WebSockets
+	var wsProtocol = 'ws';
+	if(options.secure) {
+	  wsProtocol = 'wss';
+	  socket.setSecure(options.secure);
+	}
     socket.setTimeout(0);
     socket.setNoDelay(true);
     socket.setKeepAlive(true, 0);
@@ -156,17 +172,19 @@ exports.createServer = function (websocketListener, options) {
         hash.update(upgradeHead);
 
         socket.write(nano(handshakeTemplate76, {
+          protocol: wsProtocol,
           resource: data.get[1],
           host:     data.host[1],
           origin:   data.origin[1],
-          data:     hash.digest("binary"),
+          data:     hash.digest("binary")
         }), "binary");
 
       } else { // 75
         socket.write(nano(handshakeTemplate75, {
+          protocol: wsProtocol,
           resource: data.get[1],
           host:     data.host[1],
-          origin:   data.origin[1],
+          origin:   data.origin[1]
         }));
 
       }
@@ -207,13 +225,13 @@ exports.createServer = function (websocketListener, options) {
         // should get "close" event just before.
         socket.end();
       }
-    }
+    };
     
     emitter.end = function () {
       socket.end();
-    }
+    };
     
     websocketListener(emitter); // emits: "connect", "data", "close", provides: write(data), end()
   });
-}
+};
 
