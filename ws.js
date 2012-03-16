@@ -28,7 +28,7 @@ function pack(num) {
   return result;
 }
 
-var sys  = require("sys"),
+var sys  = require("util"),
   net    = require("net"),
   crypto = require("crypto"),
   requiredHeaders = {
